@@ -12,9 +12,27 @@ RED = '#D72638'
 ACCENT = '#912F40'
 
 @st.cache_data
-def load_data(path='data/BollywoodActorRanking (2).csv'):
-    # Read CSV and treat common NULL token as NaN
-    df = pd.read_csv(path, na_values=['NULL', 'null', 'NaN'])
+def load_data(path='BollywoodActorRanking (2).csv'):
+    # Read CSV and treat common NULL token as NaN. If the file is missing,
+    # generate a small synthetic sample so the app can run without the data file.
+    try:
+        df = pd.read_csv(path, na_values=['NULL', 'null', 'NaN'])
+    except FileNotFoundError:
+        # Generate deterministic synthetic sample data
+        rng = np.random.default_rng(42)
+        n = 12
+        actors = [f'Actor {i}' for i in range(1, n + 1)]
+        movieCount = rng.integers(1, 60, size=n)
+        avg_ratings = rng.uniform(4.0, 9.0, size=n)
+        ratingSum = avg_ratings * movieCount
+        googleHits = rng.integers(1000, 1000000, size=n)
+        df = pd.DataFrame({
+            'actor': actors,
+            'movieCount': movieCount,
+            'ratingSum': ratingSum,
+            'googleHits': googleHits
+        })
+        st.warning('Data file not found; running with generated sample data.')
     # If dataset uses different actor column name, normalize to 'actor'
     if 'actorName' in df.columns and 'actor' not in df.columns:
         df = df.rename(columns={'actorName': 'actor'})
@@ -94,7 +112,7 @@ def sidebar_filters(df):
     rating_range = st.sidebar.slider('Average rating range', min_rating, max_rating, (min_rating, max_rating))
     actor_search = st.sidebar.multiselect('Select actors (optional)', options=df['actor'].tolist())
     st.sidebar.markdown('---')
-    st.sidebar.markdown('Dataset: `data/BollywoodActorRanking (2).csv`')
+    st.sidebar.markdown('Dataset: `BollywoodActorRanking (2).csv`')
     st.sidebar.markdown('Developer: Muhamed Ahmad')
     st.sidebar.markdown('---')
     st.sidebar.header('About')
