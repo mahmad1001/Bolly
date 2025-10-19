@@ -281,7 +281,3 @@ def generate_report(df):
 
 report_text = generate_report(df)
 st.download_button('Download Technical Report', data=report_text, file_name='report.md', mime='text/markdown')
-
-st.markdown('---')
-st.markdown('### Notes')
-st.markdown('This app uses mock/demo data. Replace `data/bollywood_famestats.csv` with real dataset to run a production analysis.')
